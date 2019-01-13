@@ -1,12 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-DCGAN Tutorial
-==============
-
-**Author**: `Nathan Inkawhich <https://github.com/inkawhich>`__
-
-"""
-
 from __future__ import print_function
 #%matplotlib inline
 import argparse
@@ -93,28 +84,6 @@ plt.axis("off")
 plt.title("Training Images")
 plt.imshow(np.transpose(vutils.make_grid(real_batch[0].to(device)[:64], padding=2, normalize=True).cpu(),(1,2,0)))
 
-
-
-######################################################################
-# Implementation
-# --------------
-#
-# With our input parameters set and the dataset prepared, we can now get
-# into the implementation. We will start with the weigth initialization
-# strategy, then talk about the generator, discriminator, loss functions,
-# and training loop in detail.
-#
-# Weight Initialization
-# ~~~~~~~~~~~~~~~~~~~~~
-#
-# From the DCGAN paper, the authors specify that all model weights shall
-# be randomly initialized from a Normal distribution with mean=0,
-# stdev=0.2. The ``weights_init`` function takes an initialized model as
-# input and reinitializes all convolutional, convolutional-transpose, and
-# batch normalization layers to meet this criteria. This function is
-# applied to the models immediately after initialization.
-#
-
 # custom weights initialization called on netG and netD
 def weights_init(m):
     classname = m.__class__.__name__
@@ -124,34 +93,6 @@ def weights_init(m):
         nn.init.normal_(m.weight.data, 1.0, 0.02)
         nn.init.constant_(m.bias.data, 0)
 
-
-######################################################################
-# Generator
-# ~~~~~~~~~
-#
-# The generator, :math:`G`, is designed to map the latent space vector
-# (:math:`z`) to data-space. Since our data are images, converting
-# :math:`z` to data-space means ultimately creating a RGB image with the
-# same size as the training images (i.e. 3x64x64). In practice, this is
-# accomplished through a series of strided two dimensional convolutional
-# transpose layers, each paired with a 2d batch norm layer and a relu
-# activation. The output of the generator is fed through a tanh function
-# to return it to the input data range of :math:`[-1,1]`. It is worth
-# noting the existence of the batch norm functions after the
-# conv-transpose layers, as this is a critical contribution of the DCGAN
-# paper. These layers help with the flow of gradients during training. An
-# image of the generator from the DCGAN paper is shown below.
-#
-# .. figure:: /_static/img/dcgan_generator.png
-#    :alt: dcgan_generator
-#
-# Notice, the how the inputs we set in the input section (*nz*, *ngf*, and
-# *nc*) influence the generator architecture in code. *nz* is the length
-# of the z input vector, *ngf* relates to the size of the feature maps
-# that are propagated through the generator, and *nc* is the number of
-# channels in the output image (set to 3 for RGB images). Below is the
-# code for the generator.
-#
 
 # Generator Code
 
@@ -185,13 +126,7 @@ class Generator(nn.Module):
     def forward(self, input):
         return self.main(input)
 
-
-######################################################################
-# Now, we can instantiate the generator and apply the ``weights_init``
-# function. Check out the printed model to see how the generator object is
-# structured.
-#
-
+   
 # Create the generator
 netG = Generator(ngpu).to(device)
 
@@ -207,26 +142,8 @@ netG.apply(weights_init)
 print(netG)
 
 
-######################################################################
-# Discriminator
-# ~~~~~~~~~~~~~
-#
-# As mentioned, the discriminator, :math:`D`, is a binary classification
-# network that takes an image as input and outputs a scalar probability
-# that the input image is real (as opposed to fake). Here, :math:`D` takes
-# a 3x64x64 input image, processes it through a series of Conv2d,
-# BatchNorm2d, and LeakyReLU layers, and outputs the final probability
-# through a Sigmoid activation function. This architecture can be extended
-# with more layers if necessary for the problem, but there is significance
-# to the use of the strided convolution, BatchNorm, and LeakyReLUs. The
-# DCGAN paper mentions it is a good practice to use strided convolution
-# rather than pooling to downsample because it lets the network learn its
-# own pooling function. Also batch norm and leaky relu functions promote
-# healthy gradient flow which is critical for the learning process of both
-# :math:`G` and :math:`D`.
-#
 
-#########################################################################
+
 # Discriminator Code
 
 class Discriminator(nn.Module):
@@ -257,12 +174,7 @@ class Discriminator(nn.Module):
     def forward(self, input):
         return self.main(input)
 
-
-######################################################################
-# Now, as with the generator, we can create the discriminator, apply the
-# ``weights_init`` function, and print the model’s structure.
-#
-
+      
 # Create the Discriminator
 netD = Discriminator(ngpu).to(device)
 
@@ -377,17 +289,9 @@ for epoch in range(num_epochs):
 ######################################################################
 # Results
 # -------
-#
-# Finally, lets check out how we did. Here, we will look at three
-# different results. First, we will see how D and G’s losses changed
-# during training. Second, we will visualize G’s output on the fixed_noise
-# batch for every epoch. And third, we will look at a batch of real data
-# next to a batch of fake data from G.
-#
-# **Loss versus training iteration**
-#
-# Below is a plot of D & G’s losses versus training iterations.
-#
+#1. Change in D and G's losses over time (training iterations)
+#2. G's output on the fixed_noise batch in every epoch
+#3. A batch of real data vs. a batch of fake data
 
 plt.figure(figsize=(10,5))
 plt.title("Generator and Discriminator Loss During Training")
@@ -402,11 +306,7 @@ plt.show()
 ######################################################################
 # **Visualization of G’s progression**
 #
-# Remember how we saved the generator’s output on the fixed_noise batch
-# after every epoch of training. Now, we can visualize the training
-# progression of G with an animation. Press the play button to start the
-# animation.
-#
+# An animation that shows G's progression over time, as it slowly becomes better at generating faces. 
 
 #%%capture
 fig = plt.figure(figsize=(8,8))
@@ -419,10 +319,6 @@ HTML(ani.to_jshtml())
 
 ######################################################################
 # **Real Images vs. Fake Images**
-#
-# Finally, lets take a look at some real images and fake images side by
-# side.
-#
 
 # Grab a batch of real images from the dataloader
 real_batch = next(iter(dataloader))
